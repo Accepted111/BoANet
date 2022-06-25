@@ -14,7 +14,6 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 from networks.vnet_dual_task import VNet
 from utils import ramps, losses
-from test import test_calculate_metric
 from data_processing.data_loader import pancreas, RandomCrop, RandomRotFlip, ToTensor, TwoStreamBatchSampler
 
 parser = argparse.ArgumentParser()
@@ -190,21 +189,6 @@ if __name__ == "__main__":
         if epoch % save_step == 0:
             save_mode_path = os.path.join(snapshot_path, 'iter_' + str(iter_num) + '.pth')
             torch.save(model.state_dict(), save_mode_path)
-            avg_metric = test_calculate_metric(model)
-            val_dice = avg_metric[0]
-            val_jc = avg_metric[1]
-            val_asd = avg_metric[2]
-            val_hd = avg_metric[3]
-            val_mean = (val_dice + val_hd) / 2
-
-            temp = "iteration_test %d: Dice: %f, JC: %f, ASD: %f, HD: %f"%(iter_num, val_dice, val_jc, val_asd, val_hd)
-            result.append(temp)
-            logging.info(temp)
-
-            if val_mean > best_performance:
-                save_mode_path = os.path.join(snapshot_path, 'best.pth')
-                torch.save(model.state_dict(), save_mode_path)
-                best_performance = val_mean
 
     for log in result:
         logging.info(log)
